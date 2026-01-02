@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Category;
 
 class Product extends Model
 {
@@ -14,11 +15,17 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'image'
+        'image',
+        'category_id'
     ];
 
     // Converte o preço automaticamente para número
     protected $casts = [
         'price' => 'decimal:2'
     ];
+
+     public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
