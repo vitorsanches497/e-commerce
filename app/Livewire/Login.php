@@ -1,26 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('components.layouts.auth')]
 class Login extends Component
 {
     public string $email = '';
+
     public string $password = '';
 
     public function login()
     {
         $credentials = $this->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         if (! Auth::attempt($credentials)) {
             $this->addError('email', 'Credenciais inválidas');
+
             return;
         }
 
@@ -31,7 +35,6 @@ class Login extends Component
 
     public function render()
     {
-       return view('livewire.login');
+        return view('livewire.login');
     }
-}   
-
+}

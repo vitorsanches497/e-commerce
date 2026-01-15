@@ -149,6 +149,28 @@
                         @enderror
                     </div>
 
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Categoria *
+                </label>
+
+                <select wire:model="category_id"
+                        class="w-full px-3 py-2 border rounded @error('category_id') border-red-500 @enderror">
+                    <option value="">Selecione uma categoria</option>
+
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">
+                            {{ $category->name }}
+                        </option>
+                @endforeach
+            </select>
+
+            @error('category_id')
+                <span class="text-red-500 text-xs">{{ $message }}</span>
+            @enderror
+        </div>
+
+
                     {{-- Preço --}}
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">
