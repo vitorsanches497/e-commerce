@@ -27,13 +27,14 @@
                     </div>
 
                     <div class="flex gap-2">
-                        <a href="#"
+                        <a href="{{ route('addresses.edit', $address) }}"
                            class="text-blue-600 hover:underline">
                             Editar
                         </a>
 
                         <button
                             wire:click="delete({{ $address->id }})"
+                            onclick="confirm('Tem certeza que deseja excluir este endereço?') || event.stopImmediatePropagation()"
                             class="text-red-600 hover:underline">
                             Excluir
                         </button>

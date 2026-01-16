@@ -25,6 +25,10 @@ class ProductList extends Component
 
     // Controle do modal
     public bool $showModal = false;
+    
+    public bool $promotion_active = false;
+    
+    public int $discount_percentage = 0;
 
     public ?int $productId = null;
 
@@ -105,6 +109,8 @@ class ProductList extends Component
         $this->description = $product->description;
         $this->category_id = $product->category_id;
         $this->price = (string) $product->price;
+        $this->promotion_active = (bool) $product->promotion_active;
+        $this->discount_percentage = (int) $product->discount_percentage;
         $this->currentImage = $product->image ?? '';
         $this->image = null;
 
@@ -121,6 +127,10 @@ class ProductList extends Component
             'description' => $this->description,
             'price'       => $this->price,
             'category_id' => $this->category_id,
+            'promotion_active' => $this->promotion_active,
+            'discount_percentage' => $this->promotion_active
+                ? $this->discount_percentage
+                : 0,
         ];
 
         // Processar imagem
@@ -175,6 +185,8 @@ class ProductList extends Component
         $this->name = '';
         $this->description = '';
         $this->price = '';
+        $this->promotion_active = false;
+        $this->discount_percentage = 0;
         $this->image = null;
         $this->currentImage = '';
         $this->resetErrorBag();

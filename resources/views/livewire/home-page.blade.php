@@ -107,9 +107,21 @@
                             <p class="text-sm text-gray-600 line-clamp-2">{{ $product->description }}</p>
 
                             <div class="flex justify-between items-center mt-4">
-                                <span class="text-xl font-bold">
-                                    R$ {{ number_format($product->price, 2, ',', '.') }}
-                                </span>
+                                <div>
+                                    @if ($product->promotion_active)
+                                        <span class="text-sm line-through text-gray-400 block">
+                                            R$ {{ number_format($product->price, 2, ',', '.') }}
+                                        </span>
+
+                                        <span class="text-xl font-bold text-red-600">
+                                            R$ {{ number_format($product->final_price, 2, ',', '.') }}
+                                        </span>
+                                    @else
+                                        <span class="text-xl font-bold">
+                                            R$ {{ number_format($product->price, 2, ',', '.') }}
+                                        </span>
+                                    @endif
+                                </div>
 
                                 <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
                                     Adicionar ao Carrinho
@@ -142,9 +154,19 @@
                                 @endif
                             </div>
                             <h3 class="font-semibold line-clamp-2">{{ $product->name }}</h3>
-                            <p class="text-blue-600 font-bold">
-                                R$ {{ number_format($product->price, 2, ',', '.') }}
-                            </p>
+                            @if ($product->promotion_active)
+                                <p class="text-sm line-through text-gray-400">
+                                    R$ {{ number_format($product->price, 2, ',', '.') }}
+                                </p>
+
+                                <p class="text-red-600 font-bold">
+                                    R$ {{ number_format($product->final_price, 2, ',', '.') }}
+                                </p>
+                            @else
+                                <p class="text-blue-600 font-bold">
+                                    R$ {{ number_format($product->price, 2, ',', '.') }}
+                                </p>
+                            @endif
                         </div>
                     @endforeach
                 </div>

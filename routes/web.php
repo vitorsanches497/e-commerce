@@ -14,6 +14,7 @@ use App\Livewire\ProductList;
 use App\Livewire\Register;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Addresses\Edit;
 
 // Página inicial
 Route::get('/', HomePage::class)->name('home');
@@ -63,5 +64,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/enderecos/criar', AddressesCreate::class)
         ->name('addresses.create');
+    
+    Route::get('/addresses/{address}/edit', Edit::class)
+        ->name('addresses.edit');
 
 });

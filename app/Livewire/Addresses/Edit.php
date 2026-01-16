@@ -2,11 +2,13 @@
 
 namespace App\Livewire\Addresses;
 
-use Illuminate\Support\Facades\Http;
+use App\Models\Address;
 use Livewire\Component;
 
-class Create extends Component
+class Edit extends Component
 {
+    public Address $address;
+
     public string $cep = '';
     public string $street = '';
     public string $number = '';
@@ -27,11 +29,30 @@ class Create extends Component
         ];
     }
 
-    public function save()
+    public function mount(Address $address)
+    {
+        // Segurança: só edita se for dono
+        if ($address->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $this->address = $address;
+
+        // Preenche os campos
+        $this->cep = $address->cep;
+        $this->street = $address->street;
+        $this->number = $address->number;
+        $this->complement = $address->complement;
+        $this->district = $address->district;
+        $this->city = $address->city;
+        $this->state = $address->state;
+    }
+
+    public function update()
     {
         $this->validate();
 
-        auth()->user()->addresses()->create([
+        $this->address->update([
             'cep' => $this->cep,
             'street' => $this->street,
             'number' => $this->number,
@@ -46,27 +67,6 @@ class Create extends Component
 
     public function render()
     {
-        return view('livewire.addresses.create');
+        return view('livewire.addresses.edit');
     }
-
-    public function updatedCep()
-    {
-        $cep = preg_replace('/\D/', '', $this->cep);
-
-        if (strlen($cep) !== 8) {
-            return;
-        }
-
-        $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
-
-        if ($response->failed() || isset($response['erro'])) {
-            return;
-        }
-
-        $this->street   = $response['logradouro'] ?? '';
-        $this->district = $response['bairro'] ?? '';
-        $this->city     = $response['localidade'] ?? '';
-        $this->state    = $response['uf'] ?? '';
-    }
-    
 }

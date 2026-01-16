@@ -35,6 +35,9 @@ return new class() extends Migration {
             $table->string('image')->nullable();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
+            $table->decimal('price', 10, 2);
+            $table->integer('discount_percentage')->default(0);
+            $table->boolean('promotion_active')->default(false);
         });
     }
 };

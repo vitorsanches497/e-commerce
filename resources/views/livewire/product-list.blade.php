@@ -72,7 +72,25 @@
                             <div class="text-sm text-gray-500">{{ Str::limit($product->description, 50) }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            R$ {{ number_format($product->price, 2, ',', '.') }}
+                            @if ($product->promotion_active)
+                                <div class="flex flex-col">
+                                    <span class="line-through text-gray-400 text-xs">
+                                        R$ {{ number_format($product->price, 2, ',', '.') }}
+                                    </span>
+
+                                    <span class="font-bold text-red-600">
+                                        R$ {{ number_format($product->final_price, 2, ',', '.') }}
+                                    </span>
+
+                                    <span class="text-xs text-red-500">
+                                        -{{ $product->discount_percentage }}%
+                                    </span>
+                                </div>
+                            @else
+                                <span class="font-bold">
+                                    R$ {{ number_format($product->price, 2, ',', '.') }}
+                                </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $product->created_at->format('d/m/Y') }}

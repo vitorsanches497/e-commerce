@@ -16,6 +16,8 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'discount_percentage',
+        'promotion_active',
         'image',
         'category_id',
     ];
@@ -29,4 +31,16 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+   public function getFinalPriceAttribute(): float
+    {
+        if (!$this->promotion_active || $this->discount_percentage <= 0) {
+            return (float) $this->price;
+        }
+
+        return round(
+            $this->price - ($this->price * ($this->discount_percentage / 100)),
+            2
+        );
+    }
 }
