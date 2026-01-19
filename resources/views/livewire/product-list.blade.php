@@ -73,21 +73,19 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             @if ($product->promotion_active)
-                                <div class="flex flex-col">
-                                    <span class="line-through text-gray-400 text-xs">
-                                        R$ {{ number_format($product->price, 2, ',', '.') }}
-                                    </span>
+                                <span class="text-sm line-through text-gray-400">
+                                    R$ {{ number_format($product->price, 2, ',', '.') }}
+                                </span>
 
-                                    <span class="font-bold text-red-600">
-                                        R$ {{ number_format($product->final_price, 2, ',', '.') }}
-                                    </span>
+                                <span class="text-lg font-bold text-red-600">
+                                    R$ {{ number_format($product->final_price, 2, ',', '.') }}
+                                </span>
 
-                                    <span class="text-xs text-red-500">
-                                        -{{ $product->discount_percentage }}%
-                                    </span>
-                                </div>
+                                <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">
+                                    -{{ $product->discount_percentage }}%
+                                </span>
                             @else
-                                <span class="font-bold">
+                                <span class="text-lg font-bold">
                                     R$ {{ number_format($product->price, 2, ',', '.') }}
                                 </span>
                             @endif
@@ -188,8 +186,34 @@
             @enderror
         </div>
 
-
                     {{-- Preço --}}
+                    <div class="flex items-center gap-2 mt-2">
+                        <input
+                            type="checkbox"
+                            wire:model="promotion_active"
+                            class="rounded border-gray-300"
+                        >
+                        <span class="text-sm font-medium">
+                            Ativar promoção
+                        </span>
+                    </div>
+
+                    @if ($promotion_active)
+                        <div class="mt-2">
+                            <label class="block text-sm font-medium">
+                                Desconto (%)
+                            </label>
+
+                            <input
+                                type="number"
+                                min="1"
+                                max="90"
+                                wire:model.defer="discount_percentage"
+                                class="w-full border rounded p-2"
+                        >
+                    </div>
+                @endif
+
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">
                             Preço *
@@ -201,41 +225,65 @@
                         @error('price') 
                             <span class="text-red-500 text-xs">{{ $message }}</span> 
                         @enderror
-                    </div>
+                    </div>     
 
-                    {{-- Imagem --}}
+                    {{-- Imagem principal --}}
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">
-                            Imagem {{ $productId ? '' : '*' }}
+                            Imagem principal {{ $productId ? '' : '*' }}
                         </label>
-                        
-                        {{-- Mostra imagem atual se estiver editando --}}
+
+                        {{-- Imagem atual --}}
                         @if ($productId && $currentImage)
                             <div class="mb-2">
-                                <img src="{{ Storage::url($currentImage) }}" 
-                                     alt="Imagem atual"
+                                <img src="{{ Storage::url($currentImage) }}"
                                      class="h-32 w-32 object-cover rounded">
-                                <p class="text-sm text-gray-500 mt-1">Imagem atual (envie uma nova para substituir)</p>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Imagem atual (envie uma nova para substituir)
+                                </p>
                             </div>
                         @endif
 
-                        <input type="file" 
-                               wire:model="image" 
-                               accept="image/*"
-                               class="w-full px-3 py-2 border rounded @error('image') border-red-500 @enderror">
-                        @error('image') 
-                            <span class="text-red-500 text-xs">{{ $message }}</span> 
+                        <input type="file"
+                                wire:model="image"
+                                accept="image/*"
+                                class="w-full px-3 py-2 border rounded">
+
+                        @error('image')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
 
-                        {{-- Preview da nova imagem --}}
                         @if ($image)
-                            <div class="mt-2">
-                                <img src="{{ $image->temporaryUrl() }}" 
-                                     alt="Preview"
-                                     class="h-32 w-32 object-cover rounded">
-                            </div>
+                            <img src="{{ $image->temporaryUrl() }}"
+                                class="h-24 w-24 object-cover rounded mt-2">
                         @endif
                     </div>
+
+                    {{-- Imagens adicionais --}}
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                            Imagens adicionais
+                        </label>
+
+                    <input type="file"
+                            wire:model="images"
+                            multiple
+                            accept="image/*"
+                            class="w-full px-3 py-2 border rounded">
+
+                    @error('images.*')
+                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                    @enderror
+
+                    @if ($images)
+                        <div class="flex gap-2 mt-2 flex-wrap">
+                            @foreach ($images as $image)
+                                <img src="{{ $image->temporaryUrl() }}"
+                                class="h-20 w-20 object-cover rounded">
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
 
                     {{-- Botões --}}
                     <div class="flex justify-end gap-2 pt-4 border-t">

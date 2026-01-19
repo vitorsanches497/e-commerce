@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Livewire\Addresses\Index as AddressesIndex;
 use App\Livewire\Addresses\Create as AddressesCreate;
+use App\Livewire\Addresses\Edit;
+use App\Livewire\Addresses\Index as AddressesIndex;
 use App\Livewire\CategoryList;
 use App\Livewire\Dashboard;
 use App\Livewire\HomePage;
@@ -14,7 +15,6 @@ use App\Livewire\ProductList;
 use App\Livewire\Register;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Addresses\Edit;
 
 // Página inicial
 Route::get('/', HomePage::class)->name('home');
@@ -64,7 +64,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/enderecos/criar', AddressesCreate::class)
         ->name('addresses.create');
-    
+
     Route::get('/addresses/{address}/edit', Edit::class)
         ->name('addresses.edit');
 

@@ -32,9 +32,9 @@ class Product extends Model
         'price' => 'decimal:2',
     ];
 
-   public function getFinalPriceAttribute(): float
+    public function getFinalPriceAttribute(): float
     {
-        if (!$this->promotion_active || $this->discount_percentage <= 0) {
+        if (! $this->promotion_active || $this->discount_percentage <= 0) {
             return (float) $this->price;
         }
 
@@ -42,5 +42,10 @@ class Product extends Model
             $this->price - ($this->price * ($this->discount_percentage / 100)),
             2
         );
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
     }
 }

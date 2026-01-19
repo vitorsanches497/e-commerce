@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -25,9 +26,9 @@ class ProductList extends Component
 
     // Controle do modal
     public bool $showModal = false;
-    
+
     public bool $promotion_active = false;
-    
+
     public int $discount_percentage = 0;
 
     public ?int $productId = null;
@@ -44,6 +45,8 @@ class ProductList extends Component
     public string $price = '';
 
     public $image = null;
+
+    public array $images = [];
 
     public string $currentImage = '';
 
@@ -64,6 +67,7 @@ class ProductList extends Component
             'image'       => $this->productId
                 ? ['nullable', 'image', 'max:2048']
                 : ['required', 'image', 'max:2048'],
+            'images.*'    => ['image', 'max:2048'],
         ];
     }
 
@@ -123,19 +127,18 @@ class ProductList extends Component
         $this->validate();
 
         $data = [
-            'name'        => $this->name,
-            'description' => $this->description,
-            'price'       => $this->price,
-            'category_id' => $this->category_id,
-            'promotion_active' => $this->promotion_active,
+            'name'                => $this->name,
+            'description'         => $this->description,
+            'price'               => $this->price,
+            'category_id'         => $this->category_id,
+            'promotion_active'    => $this->promotion_active,
             'discount_percentage' => $this->promotion_active
                 ? $this->discount_percentage
                 : 0,
         ];
 
-        // Processar imagem
+        // Imagem principal
         if ($this->image) {
-            // Deletar imagem antiga se estiver editando
             if ($this->productId && $this->currentImage) {
                 Storage::disk('public')->delete($this->currentImage);
             }
@@ -143,15 +146,32 @@ class ProductList extends Component
             $data['image'] = $this->image->store('products', 'public');
         }
 
+        // Criar ou atualizar produto (UMA ÚNICA VEZ)
         if ($this->productId) {
-            // ATUALIZAR
-            Product::find($this->productId)->update($data);
-            session()->flash('message', 'Produto atualizado com sucesso!');
+            $product = Product::findOrFail($this->productId);
+            $product->update($data);
         } else {
-            // CRIAR
-            Product::create($data);
-            session()->flash('message', 'Produto criado com sucesso!');
+            $product = Product::create($data);
         }
+
+        // Imagens adicionais (quantas quiser)
+        if (! empty($this->images)) {
+            foreach ($this->images as $image) {
+                $path = $image->store('products', 'public');
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image'      => $path,
+                ]);
+            }
+        }
+
+        session()->flash(
+            'message',
+            $this->productId
+                ? 'Produto atualizado com sucesso!'
+                : 'Produto criado com sucesso!'
+        );
 
         $this->closeModal();
     }

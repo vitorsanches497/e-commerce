@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Addresses;
 
 use Illuminate\Support\Facades\Http;
@@ -8,22 +10,28 @@ use Livewire\Component;
 class Create extends Component
 {
     public string $cep = '';
+
     public string $street = '';
+
     public string $number = '';
+
     public ?string $complement = null;
+
     public string $district = '';
+
     public string $city = '';
+
     public string $state = '';
 
     protected function rules(): array
     {
         return [
-            'cep' => 'required|min:8',
-            'street' => 'required',
-            'number' => 'required',
+            'cep'      => 'required|min:8',
+            'street'   => 'required',
+            'number'   => 'required',
             'district' => 'required',
-            'city' => 'required',
-            'state' => 'required|size:2',
+            'city'     => 'required',
+            'state'    => 'required|size:2',
         ];
     }
 
@@ -32,13 +40,13 @@ class Create extends Component
         $this->validate();
 
         auth()->user()->addresses()->create([
-            'cep' => $this->cep,
-            'street' => $this->street,
-            'number' => $this->number,
+            'cep'        => $this->cep,
+            'street'     => $this->street,
+            'number'     => $this->number,
             'complement' => $this->complement,
-            'district' => $this->district,
-            'city' => $this->city,
-            'state' => strtoupper($this->state),
+            'district'   => $this->district,
+            'city'       => $this->city,
+            'state'      => strtoupper($this->state),
         ]);
 
         return redirect()->route('addresses.index');
@@ -63,10 +71,9 @@ class Create extends Component
             return;
         }
 
-        $this->street   = $response['logradouro'] ?? '';
+        $this->street = $response['logradouro'] ?? '';
         $this->district = $response['bairro'] ?? '';
-        $this->city     = $response['localidade'] ?? '';
-        $this->state    = $response['uf'] ?? '';
+        $this->city = $response['localidade'] ?? '';
+        $this->state = $response['uf'] ?? '';
     }
-    
 }
