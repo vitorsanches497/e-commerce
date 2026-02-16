@@ -13,50 +13,51 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app')] // Use o mesmo padrão do seu projeto
+#[Layout('components.layouts.app')]
 class ProductList extends Component
 {
     use WithPagination;
     use WithFileUploads;
 
-    // Propriedades de busca
-    public string $search = '';
+    /*PROPRIEDADES**/
 
+    // Busca / filtros
+    public string $search = '';
     public string $searchDate = '';
 
-    // Controle do modal
+    // Modal
     public bool $showModal = false;
 
+    // Promoção
     public bool $promotion_active = false;
-
     public int $discount_percentage = 0;
 
+    // IDs
     public ?int $productId = null;
-
     public ?int $category_id = null;
 
+    // Listas
     public $categories = [];
 
-    // Campos do formulário
+    // Formulário
     public string $name = '';
-
     public string $description = '';
-
     public string $price = '';
 
-    public $image = null;
-
-    public array $images = [];
-
+    // Uploads
+    public $image = null;        // imagem principal
+    public array $images = [];   // imagens adicionais
     public string $currentImage = '';
+
+    /** CICLO DE VIDA*/
 
     public function mount(): void
     {
-        // Carrega categorias uma única vez
         $this->categories = Category::orderBy('name')->get();
     }
 
-    // Regras de validação
+    /** VALIDAÇÃO*/
+
     protected function rules(): array
     {
         return [
@@ -71,7 +72,6 @@ class ProductList extends Component
         ];
     }
 
-    // Mensagens personalizadas
     protected $messages = [
         'name.required'        => 'O nome é obrigatório',
         'name.min'             => 'O nome deve ter no mínimo 3 caracteres',
@@ -85,7 +85,8 @@ class ProductList extends Component
         'image.max'            => 'A imagem não pode ter mais de 2MB',
     ];
 
-    // Resetar paginação ao buscar
+    /** FILTROS*/
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -96,46 +97,24 @@ class ProductList extends Component
         $this->resetPage();
     }
 
-    // Abrir modal para CRIAR
+    /** CRUD*/
+
     public function create(): void
     {
         $this->resetForm();
         $this->showModal = true;
     }
 
-    // Abrir modal para EDITAR
-    public function edit(int $id): void
+    public function edit(Product $product): void
     {
-        $product = Product::findOrFail($id);
-
-        $this->productId = $product->id;
-        $this->name = $product->name;
-        $this->description = $product->description;
-        $this->category_id = $product->category_id;
-        $this->price = (string) $product->price;
-        $this->promotion_active = (bool) $product->promotion_active;
-        $this->discount_percentage = (int) $product->discount_percentage;
-        $this->currentImage = $product->image ?? '';
-        $this->image = null;
-
-        $this->showModal = true;
+        $this->fill($product->toArray());
     }
 
-    // Salvar (criar ou atualizar)
     public function save(): void
     {
         $this->validate();
 
-        $data = [
-            'name'                => $this->name,
-            'description'         => $this->description,
-            'price'               => $this->price,
-            'category_id'         => $this->category_id,
-            'promotion_active'    => $this->promotion_active,
-            'discount_percentage' => $this->promotion_active
-                ? $this->discount_percentage
-                : 0,
-        ];
+        $data = $this->validate();
 
         // Imagem principal
         if ($this->image) {
@@ -146,24 +125,17 @@ class ProductList extends Component
             $data['image'] = $this->image->store('products', 'public');
         }
 
-        // Criar ou atualizar produto (UMA ÚNICA VEZ)
-        if ($this->productId) {
-            $product = Product::findOrFail($this->productId);
-            $product->update($data);
-        } else {
-            $product = Product::create($data);
-        }
+        // Criar ou atualizar
+        $product = $this->productId
+            ? tap(Product::findOrFail($this->productId))->update($data)
+            : Product::create($data);
 
-        // Imagens adicionais (quantas quiser)
-        if (! empty($this->images)) {
-            foreach ($this->images as $image) {
-                $path = $image->store('products', 'public');
-
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image'      => $path,
-                ]);
-            }
+        // Imagens adicionais
+        foreach ($this->images as $image) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image'      => $image->store('products', 'public'),
+            ]);
         }
 
         session()->flash(
@@ -176,7 +148,6 @@ class ProductList extends Component
         $this->closeModal();
     }
 
-    // Excluir produto
     public function delete(int $id): void
     {
         $product = Product::findOrFail($id);
@@ -185,34 +156,27 @@ class ProductList extends Component
             Storage::disk('public')->delete($product->image);
         }
 
+        $product->images()->delete();
         $product->delete();
 
         session()->flash('message', 'Produto excluído com sucesso!');
     }
 
-    // Fechar modal
+    /** AUXILIARES */
+
     public function closeModal(): void
     {
         $this->showModal = false;
         $this->resetForm();
     }
 
-    // Limpar formulário
     private function resetForm(): void
     {
-        $this->productId = null;
-        $this->category_id = null;
-        $this->name = '';
-        $this->description = '';
-        $this->price = '';
-        $this->promotion_active = false;
-        $this->discount_percentage = 0;
-        $this->image = null;
-        $this->currentImage = '';
-        $this->resetErrorBag();
+        $this->reset();
     }
 
-    // Renderizar
+    /** RENDER */
+
     public function render()
     {
         $products = Product::query()
@@ -227,8 +191,6 @@ class ProductList extends Component
             ->orderByDesc('created_at')
             ->paginate(10);
 
-        return view('livewire.product-list', [
-            'products' => $products,
-        ]);
+        return view('livewire.product-list', compact('products'));
     }
 }
