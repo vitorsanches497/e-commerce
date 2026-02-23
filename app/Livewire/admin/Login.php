@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire;
+namespace App\Livewire\Admin;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
