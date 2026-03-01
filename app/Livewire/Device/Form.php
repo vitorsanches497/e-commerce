@@ -17,6 +17,7 @@ class Form extends Component
     
     public function save()
     {
+        dd($this->name, $this->phone);
         $this->validade();
 
         Device::create([
