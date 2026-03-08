@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Device\Form;
 use App\Livewire\Device\Index;
 
-Route::get('device/form', Form::class);
+Route::get('device/form/{id?}', Form::class)->name('device.form');
 
 Route::get('device', Index::class);
 
