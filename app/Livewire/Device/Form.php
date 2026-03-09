@@ -31,22 +31,16 @@ class Form extends Component
 
     public function save()
     {
-        ///dd($this->name, $this->phone);
         $this->validate();
 
-        Device::create([
-            'name' => $this->name,
-            'phone' => $this->phone,
-        ]);
+        Device::updateOrCreate(
+            ['id' => $this->deviceId],
+            ['name' => $this->name, 'phone' => $this->phone]
+        );
 
-        session()->flash('success', 'Deu certo');
-        
-        $this->reset(); 
-    }
+        session()->flash('success', 'Salvo com sucesso');
 
-    public function render()
-    {
-        return view('livewire.device.form');
+        return redirect()->route('device.index');
     }
 }
 
